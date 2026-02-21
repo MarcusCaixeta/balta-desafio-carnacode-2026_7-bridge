@@ -1,152 +1,38 @@
 // DESAFIO: Sistema de Notificações Multi-Plataforma
-// PROBLEMA: Um aplicativo precisa exibir notificações em diferentes plataformas (Web, Mobile, Desktop)
-// com diferentes tipos de conteúdo (Texto, Imagem, Vídeo). O código atual cria uma explosão de classes
-// combinando cada tipo de notificação com cada plataforma
 
 using System;
 
 namespace DesignPatternChallenge
 {
-    // Contexto: Sistema que renderiza notificações em múltiplas plataformas
-    // Cada combinação de tipo + plataforma requer código específico
-    
-    // Problema: Explosão combinatória de classes
-    // 3 tipos × 3 plataformas = 9 classes concretas!
-    
-    public abstract class NotificationBase
+    public interface INotificationRenderer
     {
-        protected string title;
-        protected string content;
-
-        public NotificationBase(string title, string content)
-        {
-            this.title = title;
-            this.content = content;
-        }
-
-        public abstract void Render();
+        void RenderText(string title, string content);
+        void RenderImage(string title, string content, string mediaUrl);
+        void RenderVideo(string title, string content, string mediaUrl);
     }
 
-    // ========== NOTIFICAÇÕES DE TEXTO ==========
-    
-    public class TextNotificationWeb : NotificationBase
+    public class WebRenderer : INotificationRenderer
     {
-        public TextNotificationWeb(string title, string content) : base(title, content) { }
-
-        public override void Render()
+        public void RenderText(string title, string content)
         {
-            Console.WriteLine($"[Web - HTML] <div class='notification'>");
+            Console.WriteLine("[Web - HTML] <div class='notification'>");
             Console.WriteLine($"  <h3>{title}</h3>");
             Console.WriteLine($"  <p>{content}</p>");
             Console.WriteLine("</div>");
         }
-    }
 
-    public class TextNotificationMobile : NotificationBase
-    {
-        public TextNotificationMobile(string title, string content) : base(title, content) { }
-
-        public override void Render()
+        public void RenderImage(string title, string content, string imageUrl)
         {
-            Console.WriteLine($"[Mobile - Native] Push Notification:");
-            Console.WriteLine($"Title: {title}");
-            Console.WriteLine($"Body: {content}");
-            Console.WriteLine($"Icon: notification_icon.png");
-        }
-    }
-
-    public class TextNotificationDesktop : NotificationBase
-    {
-        public TextNotificationDesktop(string title, string content) : base(title, content) { }
-
-        public override void Render()
-        {
-            Console.WriteLine($"[Desktop - Toast] Windows Notification:");
-            Console.WriteLine($"╔══════════════════════════╗");
-            Console.WriteLine($"║ {title.PadRight(24)} ║");
-            Console.WriteLine($"║ {content.PadRight(24)} ║");
-            Console.WriteLine($"╚══════════════════════════╝");
-        }
-    }
-
-    // ========== NOTIFICAÇÕES COM IMAGEM ==========
-    
-    public class ImageNotificationWeb : NotificationBase
-    {
-        private string imageUrl;
-
-        public ImageNotificationWeb(string title, string content, string imageUrl) 
-            : base(title, content)
-        {
-            this.imageUrl = imageUrl;
-        }
-
-        public override void Render()
-        {
-            Console.WriteLine($"[Web - HTML] <div class='notification-image'>");
+            Console.WriteLine("[Web - HTML] <div class='notification-image'>");
             Console.WriteLine($"  <img src='{imageUrl}' />");
             Console.WriteLine($"  <h3>{title}</h3>");
             Console.WriteLine($"  <p>{content}</p>");
             Console.WriteLine("</div>");
         }
-    }
 
-    public class ImageNotificationMobile : NotificationBase
-    {
-        private string imageUrl;
-
-        public ImageNotificationMobile(string title, string content, string imageUrl) 
-            : base(title, content)
+        public void RenderVideo(string title, string content, string videoUrl)
         {
-            this.imageUrl = imageUrl;
-        }
-
-        public override void Render()
-        {
-            Console.WriteLine($"[Mobile - Native] Rich Push Notification:");
-            Console.WriteLine($"Title: {title}");
-            Console.WriteLine($"Body: {content}");
-            Console.WriteLine($"Image: {imageUrl}");
-            Console.WriteLine($"Style: BigPictureStyle");
-        }
-    }
-
-    public class ImageNotificationDesktop : NotificationBase
-    {
-        private string imageUrl;
-
-        public ImageNotificationDesktop(string title, string content, string imageUrl) 
-            : base(title, content)
-        {
-            this.imageUrl = imageUrl;
-        }
-
-        public override void Render()
-        {
-            Console.WriteLine($"[Desktop - Toast] Windows Notification with Image:");
-            Console.WriteLine($"╔══════════════════════════╗");
-            Console.WriteLine($"║ [IMG: {imageUrl.Substring(0, Math.Min(15, imageUrl.Length))}...]  ║");
-            Console.WriteLine($"║ {title.PadRight(24)} ║");
-            Console.WriteLine($"║ {content.PadRight(24)} ║");
-            Console.WriteLine($"╚══════════════════════════╝");
-        }
-    }
-
-    // ========== NOTIFICAÇÕES COM VÍDEO ==========
-    
-    public class VideoNotificationWeb : NotificationBase
-    {
-        private string videoUrl;
-
-        public VideoNotificationWeb(string title, string content, string videoUrl) 
-            : base(title, content)
-        {
-            this.videoUrl = videoUrl;
-        }
-
-        public override void Render()
-        {
-            Console.WriteLine($"[Web - HTML] <div class='notification-video'>");
+            Console.WriteLine("[Web - HTML] <div class='notification-video'>");
             Console.WriteLine($"  <video src='{videoUrl}' controls></video>");
             Console.WriteLine($"  <h3>{title}</h3>");
             Console.WriteLine($"  <p>{content}</p>");
@@ -154,91 +40,163 @@ namespace DesignPatternChallenge
         }
     }
 
-    public class VideoNotificationMobile : NotificationBase
+    public class MobileRenderer : INotificationRenderer
     {
-        private string videoUrl;
-
-        public VideoNotificationMobile(string title, string content, string videoUrl) 
-            : base(title, content)
+        public void RenderText(string title, string content)
         {
-            this.videoUrl = videoUrl;
+            Console.WriteLine("[Mobile - Native] Push Notification:");
+            Console.WriteLine($"Title: {title}");
+            Console.WriteLine($"Body: {content}");
+            Console.WriteLine("Icon: notification_icon.png");
         }
 
-        public override void Render()
+        public void RenderImage(string title, string content, string imageUrl)
         {
-            Console.WriteLine($"[Mobile - Native] Video Push Notification:");
+            Console.WriteLine("[Mobile - Native] Rich Push Notification:");
+            Console.WriteLine($"Title: {title}");
+            Console.WriteLine($"Body: {content}");
+            Console.WriteLine($"Image: {imageUrl}");
+            Console.WriteLine("Style: BigPictureStyle");
+        }
+
+        public void RenderVideo(string title, string content, string videoUrl)
+        {
+            Console.WriteLine("[Mobile - Native] Video Push Notification:");
             Console.WriteLine($"Title: {title}");
             Console.WriteLine($"Body: {content}");
             Console.WriteLine($"Video: {videoUrl}");
-            Console.WriteLine($"Action: Tap to play");
+            Console.WriteLine("Action: Tap to play");
         }
     }
 
-    public class VideoNotificationDesktop : NotificationBase
+    public class DesktopRenderer : INotificationRenderer
     {
-        private string videoUrl;
-
-        public VideoNotificationDesktop(string title, string content, string videoUrl) 
-            : base(title, content)
+        public void RenderText(string title, string content)
         {
-            this.videoUrl = videoUrl;
+            Console.WriteLine("[Desktop - Toast] Windows Notification:");
+            Console.WriteLine($"╔══════════════════════════╗");
+            Console.WriteLine($"║ {title.PadRight(24)} ║");
+            Console.WriteLine($"║ {content.PadRight(24)} ║");
+            Console.WriteLine("╚══════════════════════════╝");
         }
 
-        public override void Render()
+        public void RenderImage(string title, string content, string imageUrl)
         {
-            Console.WriteLine($"[Desktop - Toast] Windows Notification with Video:");
+            Console.WriteLine("[Desktop - Toast] Windows Notification with Image:");
+            Console.WriteLine($"╔══════════════════════════╗");
+            Console.WriteLine($"║ [IMG: {imageUrl.Substring(0, Math.Min(15, imageUrl.Length))}...]  ║");
+            Console.WriteLine($"║ {title.PadRight(24)} ║");
+            Console.WriteLine($"║ {content.PadRight(24)} ║");
+            Console.WriteLine("╚══════════════════════════╝");
+        }
+
+        public void RenderVideo(string title, string content, string videoUrl)
+        {
+            Console.WriteLine("[Desktop - Toast] Windows Notification with Video:");
             Console.WriteLine($"╔══════════════════════════╗");
             Console.WriteLine($"║ ▶ {videoUrl.Substring(0, Math.Min(20, videoUrl.Length))}... ║");
             Console.WriteLine($"║ {title.PadRight(24)} ║");
             Console.WriteLine($"║ {content.PadRight(24)} ║");
-            Console.WriteLine($"╚══════════════════════════╝");
+            Console.WriteLine("╚══════════════════════════╝");
         }
+    }
+
+    // ========== ABSTRACTION (Bridge) - Tipos de notificação ==========
+    public abstract class Notification
+    {
+        protected readonly INotificationRenderer _renderer;
+
+        protected Notification(INotificationRenderer renderer)
+        {
+            _renderer = renderer;
+        }
+
+        public abstract void Render();
+    }
+
+    public class TextNotification : Notification
+    {
+        private readonly string _title;
+        private readonly string _content;
+
+        public TextNotification(INotificationRenderer renderer, string title, string content)
+            : base(renderer)
+        {
+            _title = title;
+            _content = content;
+        }
+
+        public override void Render() => _renderer.RenderText(_title, _content);
+    }
+
+    public class ImageNotification : Notification
+    {
+        private readonly string _title;
+        private readonly string _content;
+        private readonly string _imageUrl;
+
+        public ImageNotification(INotificationRenderer renderer, string title, string content, string imageUrl)
+            : base(renderer)
+        {
+            _title = title;
+            _content = content;
+            _imageUrl = imageUrl;
+        }
+
+        public override void Render() => _renderer.RenderImage(_title, _content, _imageUrl);
+    }
+
+    public class VideoNotification : Notification
+    {
+        private readonly string _title;
+        private readonly string _content;
+        private readonly string _videoUrl;
+
+        public VideoNotification(INotificationRenderer renderer, string title, string content, string videoUrl)
+            : base(renderer)
+        {
+            _title = title;
+            _content = content;
+            _videoUrl = videoUrl;
+        }
+
+        public override void Render() => _renderer.RenderVideo(_title, _content, _videoUrl);
     }
 
     class Program
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("=== Sistema de Notificações Multi-Plataforma ===\n");
+            Console.WriteLine("=== Sistema de Notificações (Bridge Pattern) ===\n");
 
-            // Problema: Precisamos de uma classe para cada combinação
-            var textWeb = new TextNotificationWeb("Novo Pedido", "Você tem um novo pedido");
+            // Combina qualquer tipo com qualquer plataforma - sem explosão de classes!
+            var webRenderer = new WebRenderer();
+            var mobileRenderer = new MobileRenderer();
+            var desktopRenderer = new DesktopRenderer();
+
+            // Texto em diferentes plataformas
+            var textWeb = new TextNotification(webRenderer, "Novo Pedido", "Você tem um novo pedido");
             textWeb.Render();
             Console.WriteLine();
 
-            var textMobile = new TextNotificationMobile("Novo Pedido", "Você tem um novo pedido");
+            var textMobile = new TextNotification(mobileRenderer, "Novo Pedido", "Você tem um novo pedido");
             textMobile.Render();
             Console.WriteLine();
 
-            var imageWeb = new ImageNotificationWeb(
-                "Promoção", 
-                "50% de desconto!", 
-                "promo.jpg"
-            );
+            // Imagem em Web
+            var imageWeb = new ImageNotification(webRenderer, "Promoção", "50% de desconto!", "promo.jpg");
             imageWeb.Render();
             Console.WriteLine();
 
-            var videoMobile = new VideoNotificationMobile(
-                "Tutorial", 
-                "Aprenda a usar o app", 
-                "tutorial.mp4"
-            );
+            // Vídeo em Mobile
+            var videoMobile = new VideoNotification(mobileRenderer, "Tutorial", "Aprenda a usar o app", "tutorial.mp4");
             videoMobile.Render();
             Console.WriteLine();
 
-            Console.WriteLine("=== PROBLEMAS ===");
-            Console.WriteLine("✗ Explosão de classes: 3 tipos × 3 plataformas = 9 classes");
-            Console.WriteLine("✗ Código duplicado entre classes similares");
-            Console.WriteLine("✗ Adicionar novo tipo = criar 3 classes (uma por plataforma)");
-            Console.WriteLine("✗ Adicionar nova plataforma = criar 3 classes (uma por tipo)");
-            Console.WriteLine("✗ As duas hierarquias (tipo e plataforma) estão fortemente acopladas");
-            Console.WriteLine();
+            // Novas combinações sem criar novas classes!
+            var imageDesktop = new ImageNotification(desktopRenderer, "Alerta", "Verifique sua conta", "alert.png");
+            imageDesktop.Render();
 
-            // Perguntas para reflexão:
-            // - Como separar a abstração (tipo de notificação) da implementação (plataforma)?
-            // - Como adicionar novos tipos de notificação sem criar classes para cada plataforma?
-            // - Como adicionar novas plataformas sem modificar os tipos existentes?
-            // - Como evitar a explosão combinatória de classes?
         }
     }
 }
